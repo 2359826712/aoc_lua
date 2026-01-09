@@ -1,0 +1,12 @@
+{
+  "files": [
+    {
+      "path": "aoc.json",
+      "desc": ""
+    },
+    {
+      "path": "example.json",
+      "desc": ""
+    }
+  ]
+}

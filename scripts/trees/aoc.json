@@ -1,0 +1,98 @@
+{
+  "name": "aoc",
+  "root": {
+    "id": 1,
+    "name": "Sequence",
+    "children": [
+      {
+        "id": 2,
+        "name": "Selector",
+        "desc": "进入游戏",
+        "children": [
+          {
+            "id": 3,
+            "name": "Set_Game_Window"
+          },
+          {
+            "id": 4,
+            "name": "Is_In_Game",
+            "desc": "是否在游戏页面"
+          },
+          {
+            "id": 5,
+            "name": "Create_Role",
+            "desc": "创建角色"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "name": "Is_Death"
+      },
+      {
+        "id": 7,
+        "name": "Selector",
+        "desc": "技能",
+        "children": [
+          {
+            "id": 8,
+            "name": "Skill_Correct",
+            "desc": "技能是否正确"
+          },
+          {
+            "id": 9,
+            "name": "Sequence",
+            "children": [
+              {
+                "id": 10,
+                "name": "Open_Skill",
+                "desc": "是否打开技能页面"
+              },
+              {
+                "id": 11,
+                "name": "Set_Skill",
+                "desc": "设置技能"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "name": "Selector",
+        "desc": "移动",
+        "children": [
+          {
+            "id": 13,
+            "name": "Reached_Monster_Or_Level",
+            "desc": "是否到达指定怪物或者等级"
+          },
+          {
+            "id": 14,
+            "name": "path_move",
+            "desc": "移动"
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "name": "Sequence",
+        "desc": "是否攻击",
+        "children": [
+          {
+            "id": 16,
+            "name": "Is_Monster",
+            "desc": "是否有怪"
+          },
+          {
+            "id": 17,
+            "name": "attack",
+            "desc": "攻击"
+          }
+        ]
+      }
+    ]
+  },
+  "export": true,
+  "desc": ""
+}

@@ -422,8 +422,9 @@ local plot_nodes = {
             end
 
             aoc_api.dbgp("到达路径点")
-            iii = iii + 1
-
+            if not env.IsAtkMonsterNow then
+                iii = iii + 1
+            end
             local current_lv = env.player_info.Level
             if env.IsAtkMonsterNow then
                 if self.api2_last_lv == nil then
@@ -461,8 +462,10 @@ local plot_nodes = {
                         end
                     end
                 elseif env.TargetMovingPoint[WayData.flag] == Wayflag.WaitZ then
+                    SetAutoMove(false)
                     if next(aoc_api.is_have_monster(env.range_info, env.player_info, "", 800)) then
                         aoc_api.dbgp("L:有怪")
+                        env.ATKTargetMonster = aoc_api.is_have_monster(env.range_info, env.player_info, "", 800)
                         self.api2_last_lv = current_lv
                         env.IsAtkMonsterNow = true
                     end

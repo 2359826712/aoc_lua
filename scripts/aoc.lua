@@ -81,9 +81,7 @@ local plot_nodes = {
                 aoc_api.dbgp("正在加载")
                 Sleep(800)
                 if play_game["ret"] ~= -1 then
-                    aoc_api.dbgp("找到图片 play_game.bmp 位置")
-                    Sleep(200)
-                    aoc_api.click(play_game["x"], play_game["y"])
+                    env.join_game = false
                 end
                 return bret.RUNNING
             end

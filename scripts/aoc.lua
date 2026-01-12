@@ -408,7 +408,7 @@ local plot_nodes = {
             end
             local distance = 500
             if env.TargetMovingPoint[WayData.flag] == Wayflag.WaitZ then
-                distance = 300
+                distance = 200
             end
             if (env.TargetMovingPoint[WayData.Dis] or 999999) >= distance then
                 env.IsAtkMonsterNow = false
@@ -472,12 +472,6 @@ local plot_nodes = {
                     end
                 elseif env.TargetMovingPoint[WayData.flag] == Wayflag.WaitZ then
                     SetAutoMove(false)
-                    if next(aoc_api.is_have_monster(env.range_info, env.player_info, "", 800)) then
-                        aoc_api.dbgp("L:有怪")
-                        env.ATKTargetMonster = aoc_api.is_have_monster(env.range_info, env.player_info, "", 800)
-                        self.api2_last_lv = current_lv
-                        env.IsAtkMonsterNow = true
-                    end
                     local npc = aoc_api.is_have_Npc(env.range_info, env.player_info, "Elevator Attendant")
                     if next(npc) then
                         SetFacing(npc.worldX, npc.worldY, npc.worldZ)

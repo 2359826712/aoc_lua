@@ -495,6 +495,7 @@ local plot_nodes = {
                     env.TargetMovingPoint = aoc_api.bt_WayPoint2NextPoint(env.TargetMovingPoint, env.AllWay)
                 elseif env.TargetMovingPoint[WayData.flag] == Wayflag.endpoint then
                     aoc_api.dbgp("路径终点,没有路了")
+                    return bret.RUNNING
                 end
             end
 

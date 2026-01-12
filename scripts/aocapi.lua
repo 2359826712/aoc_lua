@@ -523,11 +523,11 @@ end
 _M.shouting = function(text)
     local index =  math.random(1,5)
      local WEB = {
-   "MMOELD" ,
-   "AOCGG" ,
-   "MMO_ELD" ,
-   "AOC_GG" ,
-   "aocgg" ,
+   "MMOELD_COM" ,
+   "AOCGG_COM" ,
+   "MMO_ELD_COM" ,
+   "AOCGG_COM" ,
+   "AOCGG_COM" ,
      }
       local AddText={
         "**_Quick Heads-Up: 30% off is live for a short time – perfect timing to refresh your inventory",
@@ -538,8 +538,8 @@ _M.shouting = function(text)
    }
     --_M.paste_text(text)
     --_M.click_keyboard("enter", 0)
-    SendChatMessage(GetSendText(WEB[index]).."_"..GetSendText("C0M").."___WTBS_"..AddText[index],50);
-    SendChatMessage(GetSendText(WEB[index]).."_"..GetSendText("C0M").."___WTBS_"..AddText[index],55);
+    SendChatMessage(GetSendText(WEB[index]).."_".."___WTBS_"..AddText[index],50);
+    SendChatMessage(GetSendText(WEB[index]).."_".."___WTBS_"..AddText[index],55);
 end
 _M.bt_GetAllWay = function()
     local locations = {
@@ -592,8 +592,9 @@ _M.bt_GetAllWay = function()
     , { -938900, -652352, 28442, "狮子路上3", 0, Wayflag.run }
     , { -933818, -652303, 29068, "狮子路上4  附近可以打怪升5 但路人较多>>>Juvenile Mountain Lion", 0, Wayflag.run }
     , { -925832, -650718, 27042, "狮子路上5", 0, Wayflag.run }
-    , { -920224, -649826, 26211, "狮子刷级点1 飞天可以直接到这里 ATKMONSTER >>>Juvenile Mountain Lion", 0, Wayflag.atk }
-    , { -912984, -646909, 25897, "狮子刷级点2 飞天可以直接到这里 ATKMONSTER >>>Juvenile Mountain Lion", 0, Wayflag.endpoint }
+    , { -920224, -649826, 26211, "狮子刷级点1", 0, Wayflag.atk }
+    , { -912984, -646909, 25897, "狮子刷级点2", 0, Wayflag.atk }
+    , { -911450, -644733, 25897, "终点", 0, Wayflag.endpoint }
     }
     return locations
 end
@@ -643,8 +644,6 @@ _M.bt_WayPoint2NextPoint = function(WayGetFastWay, GetAllWay)
     local locations = nil
     for i = 1, #GetAllWay do
         if GetAllWay[i][WayData.Name] == WayGetFastWay[WayData.Name] then
-            _M.printTable(GetAllWay[i])
-            _M.printTable(WayGetFastWay)
             locations = GetAllWay[i + 1]
             return locations
         end

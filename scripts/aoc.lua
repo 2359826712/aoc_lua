@@ -474,6 +474,7 @@ local plot_nodes = {
                     SetAutoMove(false)
                     local npc = aoc_api.is_have_Npc(env.range_info, env.player_info, "Elevator Attendant")
                     if next(npc) then
+                        aoc_api.dbgp("对话npc")
                         SetFacing(npc.worldX, npc.worldY, npc.worldZ)
                         Sleep(1000)
                         aoc_api.click_keyboard("f")

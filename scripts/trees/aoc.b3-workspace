@@ -7,10 +7,6 @@
     {
       "path": "example.json",
       "desc": ""
-    },
-    {
-      "path": "test.json",
-      "desc": ""
     }
   ]
 }

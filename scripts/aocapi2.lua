@@ -32,16 +32,6 @@ _AOCAFUN.Point2PointDis = function(Current_x, Current_y, Current_z, Point_x, Poi
 end
 
 
-_AOCAFUN.GetLocatPlayer = function()
-    local player = get_local_player()
-    return player
-end
-
-_AOCAFUN.GetList = function()
-    local allList = traverse_all_objects()
-    return allList
-end
-
 -- 获取预设路径点列表
 _AOCAFUN.GetAllWay = function()
     local locations = {

@@ -6,6 +6,21 @@ local game_str = require 'scripts\\game_str'
  addskill=0
  needhealth=false
  DownX=false
+WayData = {
+    worldX = 1,
+    worldY = 2,
+    worldZ = 3,
+    Name = 4,
+    Dis = 5,
+    flag = 6
+}
+Wayflag = {
+    run = 1,
+    atk = 2,
+    endpoint = 3,
+    WaitZ = 4
+}
+iii = 0
 
 _M.AiFindPic = function(x1,y1,x2,y2,pic,dis )
     dis = dis or 0.9
@@ -513,7 +528,7 @@ _M.shouting = function(text)
    "MMO_ELD" ,
    "AOC_GG" ,
    "aocgg" ,
-   }
+     }
       local AddText={
         "**_Quick Heads-Up: 30% off is live for a short time – perfect timing to refresh your inventory",
     "_*Grab 30% off this week as a thank you for being part of our crew! ",
@@ -525,5 +540,145 @@ _M.shouting = function(text)
     --_M.click_keyboard("enter", 0)
     SendChatMessage(GetSendText(WEB[index]).."_"..GetSendText("C0M").."___WTBS_"..AddText[index],50);
     SendChatMessage(GetSendText(WEB[index]).."_"..GetSendText("C0M").."___WTBS_"..AddText[index],55);
+end
+_M.bt_GetAllWay = function()
+    local locations = {
+        { -1057424, -685830, 5364, "第一个复活点", 0, Wayflag.run }
+        , { -1050595, -687586, 5361, "第一个门口", 0, Wayflag.run }
+    , { -1042253, -686974, 5366, "第一个楼梯口", 0, Wayflag.run }
+    , { -1042238, -675607, 7447, "第一个楼梯口转角 附近打怪升2 ATKMONSTER >>>Empty Clayborn", 0, Wayflag.atk }
+    , { -1036353, -675371, 8150, "第二个楼梯口转角", 0, Wayflag.run }
+    , { -1036243, -665398, 9530, "第三个楼梯口转角", 0, Wayflag.run }
+    , { -1024280, -665505, 10880, "第四个楼梯口转角", 0, Wayflag.run }
+    , { -1024280, -655218, 11570, "第五个楼梯口转角", 0, Wayflag.run }
+    , { -1020001, -655294, 11643, "第二个复活点前的门卫", 0, Wayflag.run }
+    , { -1016599, -655328, 11647, "第二个复活点", 0, Wayflag.run }
+    , { -1014018, -655280, 11643, "第二个复活点 门口拐角1 穿墙可忽略", 0, Wayflag.run }
+    , { -1012821, -654017, 11643, "第二个复活点 门口拐角2 穿墙可忽略", 0, Wayflag.run }
+    , { -1010120, -654563, 11642, "第二个复活点 门口石碑后的楼梯", 0, Wayflag.run }
+    , { -1003368, -654674, 12589, "门口石碑后的楼梯后拐角1 附近打怪升3 ATKMONSTER 仇恨值低要走近>>>Stonewoke Automata", 0, Wayflag.atk }
+    , { -1002992, -650964, 12933, "NPC拐角擦石碑前", 0, Wayflag.run }
+    , { -996201, -644357, 12698, "石碑后第一个拐角", 0, Wayflag.run }
+    , { -995027, -644701, 12698, "石碑后第二个拐角", 0, Wayflag.run }
+    , { -994041, -643754, 12698, "石碑后第三个拐角", 0, Wayflag.run }
+    , { -988231, -649639, 11828, "石头人护卫门口NPC", 0, Wayflag.run }
+    , { -988280, -651212, 11796, "石头人护卫门口NPC拐1", 0, Wayflag.run }
+    , { -987421, -652902, 11776, "石头人护卫门口NPC拐2", 0, Wayflag.run }
+    , { -990453, -665957, 11871, "石头人护卫门口", 0, Wayflag.run }
+    , { -992366, -668207, 11815, "石头人护卫门口拐1", 0, Wayflag.run }
+    , { -994981, -666672, 11757, "石头人护卫门2拐1", 0, Wayflag.run }
+    , { -997811, -664149, 11697, "石头人护卫门2拐2", 0, Wayflag.run }
+    , { -1001390, -661292, 10599, "石头人护卫门2拐3", 0, Wayflag.run }
+    , { -1002822, -661898, 10602, "电梯1门口  穿墙可忽略", 0, Wayflag.WaitZ }
+    , { -1004952, -663890, 16158, "电梯1内", 0, Wayflag.run }
+    , { -1004984, -664057, 16159, "电梯1外NPC", 0, Wayflag.run }
+    , { -1007814, -666883, 16152, "电梯1外NPC拐1", 0, Wayflag.run }
+    , { -999036, -675836, 16040, "电梯前的石碑", 0, Wayflag.run }
+    , { -999310, -676167, 16040, "电梯前的传送NPC F传送到楼上", 0, Wayflag.WaitZ }
+    , { -996130, -676960, 21513, "F传送后的坐标 大概率是关门的 可以直接w到下一个点", 0, Wayflag.run }
+    , { -997172, -677668, 21513, "第三个复活点前面", 0, Wayflag.run }
+    , { -990930, -684003, 21593, "第三个复活点前面与神殿门口之间", 0, Wayflag.run }
+    , { -984738, -690077, 21551, "神殿门口 如果上天下面路程能简化", 0, Wayflag.run }
+    , { -976848, -700203, 20995, "去复活点4_1", 0, Wayflag.run }
+    , { -971100, -696430, 19174, "去复活点4_2", 0, Wayflag.run }
+    , {  -964358, -691912, 17643, "去复活点4_3", 0, Wayflag.run }
+    , {-963234, -685076, 18831, "去复活点4_4", 0, Wayflag.run }
+    , { -961767, -676919, 20772, "去复活点4_5", 0, Wayflag.run }
+    , { -960045, -666619, 22502, "去复活点4_6", 0, Wayflag.run }
+    , { -958111, -656479, 23797, "去复活点4_7", 0, Wayflag.run }
+    , { -956192, -644789, 23891, "复活点4", 0, Wayflag.run }
+    , { -949681, -642180, 24217, "狮子路上1", 0, Wayflag.run }
+    , { -945770, -647546, 26326, "狮子路上2", 0, Wayflag.run }
+    , { -938900, -652352, 28442, "狮子路上3", 0, Wayflag.run }
+    , { -933818, -652303, 29068, "狮子路上4  附近可以打怪升5 但路人较多>>>Juvenile Mountain Lion", 0, Wayflag.run }
+    , { -925832, -650718, 27042, "狮子路上5", 0, Wayflag.run }
+    , { -920224, -649826, 26211, "狮子刷级点1 飞天可以直接到这里 ATKMONSTER >>>Juvenile Mountain Lion", 0, Wayflag.atk }
+    , { -912984, -646909, 25897, "狮子刷级点2 飞天可以直接到这里 ATKMONSTER >>>Juvenile Mountain Lion", 0, Wayflag.endpoint }
+    }
+    return locations
+end
+_M.bt_WayNameGetPoint = function(GetAllWay, WayNameGet)
+    local locations = nil
+    for i = 1, #GetAllWay do
+        if GetAllWay[i][WayData.Name] == WayNameGet then
+            locations = GetAllWay[i]
+            break
+        end
+    end
+    return locations
+end
+_M.bt_WayNameFindPoint = function(GetAllWay, WayNameSub)
+    local locations = nil
+    for i = 1, #GetAllWay do
+        if string.find(GetAllWay[i][WayData.Name], WayNameSub) then
+            locations = GetAllWay[i]
+            break
+        end
+    end
+    return locations
+end
+_M.bt_Point2WayDis = function(GetAllWay, playerX, playerY, playerZ)
+    for i = 1, #GetAllWay do
+        local X = GetAllWay[i][WayData.worldX]
+        local Y = GetAllWay[i][WayData.worldY]
+        local Z = GetAllWay[i][WayData.worldZ]
+        X = X - playerX
+        Y = Y - playerY
+        Z = Z - playerZ
+        local dis = math.sqrt(X * X + Y * Y + Z * Z)
+        GetAllWay[i][WayData.Dis] = dis
+    end
+    return GetAllWay
+end
+_M.bt_WayGetFastWay = function(Point2Way)
+    local locations = Point2Way[1]
+    for i = 1 + iii, #Point2Way do
+        if Point2Way[i][WayData.Dis] < locations[WayData.Dis] then
+            locations = Point2Way[i]
+        end
+    end
+    return locations
+end
+_M.bt_WayPoint2NextPoint = function(WayGetFastWay, GetAllWay)
+    local locations = nil
+    for i = 1, #GetAllWay do
+        if GetAllWay[i][WayData.Name] == WayGetFastWay[WayData.Name] then
+            _M.printTable(GetAllWay[i])
+            _M.printTable(WayGetFastWay)
+            locations = GetAllWay[i + 1]
+            return locations
+        end
+    end
+    return locations
+end
+_M.bt_GetCloserMonster = function(range_info, player_info, name)
+    local monster_list = {}
+    for _, monster in ipairs(range_info) do
+        if monster.bIsDead == true or monster.CurrentHealth == 0 or
+            monster.characterName == player_info.characterName or
+            monster.CharacterType == "Npc" then
+            goto continue
+        end
+        if not string.find(monster.characterName, name) then
+            goto continue
+        end
+        local dis = _M.Point2PointDis(player_info.worldX, player_info.worldY, player_info.worldZ, monster.worldX,
+            monster.worldY, monster.worldZ)
+        if dis <= 800 then
+            monster.dis = dis
+            table.insert(monster_list, monster)
+        end
+        ::continue::
+    end
+    table.sort(monster_list, function(a, b)
+        return a.dis < b.dis
+    end)
+    if #monster_list > 1 then
+        return monster_list[1]
+    end
+    return monster_list
+end
+_M.bt_Point2PointDis = function(x1, y1, z1, x2, y2, z2)
+    return _M.Point2PointDis(x1, y1, z1, x2, y2, z2)
 end
 return _M

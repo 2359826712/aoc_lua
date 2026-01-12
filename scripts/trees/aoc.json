@@ -67,21 +67,43 @@
         "desc": "移动",
         "children": [
           {
-            "id": 14,
-            "name": "IS_Move2Point",
-            "desc": "是否到达指定怪物或者等级"
+            "id": 25,
+            "name": "Sequence",
+            "desc": "到达/重置处理",
+            "children": [
+              {
+                "id": 14,
+                "name": "Move_Ensure_TargetPoint",
+                "desc": "确保当前有目标点"
+              },
+              {
+                "id": 15,
+                "name": "Move_Update_TargetDistance",
+                "desc": "更新目标点距离"
+              },
+              {
+                "id": 19,
+                "name": "Move_Handle_Resets",
+                "desc": "处理死亡/超远重置"
+              },
+              {
+                "id": 20,
+                "name": "Move_Handle_ArrivalAndMode",
+                "desc": "到达点与打怪模式切换"
+              }
+            ]
           },
           {
-            "id": 15,
+            "id": 21,
             "name": "path_move",
-            "desc": "移动"
+            "desc": "持续移动"
           }
         ]
       },
       {
         "id": 16,
         "name": "Sequence",
-        "desc": "是否攻击",
+        "desc": "战斗",
         "children": [
           {
             "id": 17,
@@ -89,9 +111,19 @@
             "desc": "是否有怪"
           },
           {
-            "id": 18,
-            "name": "attack",
-            "desc": "攻击"
+            "id": 22,
+            "name": "Combat_Stop_Move",
+            "desc": "战斗停止自动移动"
+          },
+          {
+            "id": 23,
+            "name": "Combat_Switch_Target",
+            "desc": "战斗切换目标锁定"
+          },
+          {
+            "id": 24,
+            "name": "Combat_Fight_Tick",
+            "desc": "战斗施放与回血"
           }
         ]
       }

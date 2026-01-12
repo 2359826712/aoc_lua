@@ -11,9 +11,6 @@ package.loaded['scripts\\my_game_info'] = nil
 package.loaded['scripts\\aocapi'] = nil
 package.loaded['scripts\\game_str'] = nil
 package.loaded['json'] = nil
-package.loaded['scripts/aocapi2'] = nil
-package.loaded['scripts/aocapi2fun'] = nil
--- package.loaded['scripts/aocapi2test'] = nil
 
 -- 加载基础节点类型
 local base_nodes = require 'scripts.lualib.behavior3.sample_process'
@@ -21,16 +18,11 @@ local json = require 'scripts.lualib.json'
 local aoc_api = require "scripts\\aocapi"
 local hwd = FindWindow("UnrealWindow","Ashes of Creation  ")
 local client_window = GetClientRect(hwd)
-local aocapi2 = require "scripts/aocapi2"
-local aocapi2fun = require 'scripts/aocapi2fun'
--- local aocapi2test = require 'scripts/aocapi2test'
 
 -- 行为节点 具体代码
 local plot_nodes = {
     Set_Game_Window = {
         run = function(self, env)
-            --刷新数据用
-            aocapi2fun.RObjData()
             return bret.FAIL
         end
     }, 
@@ -38,6 +30,7 @@ local plot_nodes = {
         run = function(self, env)
             aoc_api.dbgp("Is_In_Game")
             local close = aoc_api.AiFindPic(client_window["x1"]+582,client_window["y1"]+349,client_window["x1"]+1021,client_window["y1"]+624,"close.bmp",0.85)
+            local play_game = aoc_api.AiFindPic(client_window["x1"]+780,client_window["y1"]+843,client_window["x1"]+826,client_window["y1"]+866,"play_game.bmp")
             if close["ret"] ~= -1 then
                 aoc_api.dbgp("找到图片 close.bmp 位置")
                 aoc_api.click(close["x"], close["y"])
@@ -54,6 +47,11 @@ local plot_nodes = {
             local in_game = aoc_api.AiFindPic(client_window["x1"]+13,client_window["y1"]+18,client_window["x1"]+73,client_window["y1"]+83,"in_game.bmp")
             if in_game["ret"] ~= -1 then
                 env.join_game = true
+                --刷新数据用
+                env.range_info = traverse_all_objects()
+                env.player_info = get_local_player()
+                env.AllWay = aoc_api.bt_GetAllWay()
+                env.AllWay = aoc_api.bt_Point2WayDis(env.AllWay, env.player_info.worldX, env.player_info.worldY, env.player_info.worldZ)
                 return bret.SUCCESS
             end
             if not env.join_game then
@@ -69,7 +67,6 @@ local plot_nodes = {
                     aoc_api.dbgp("有角色")
                     aoc_api.click(character["x"], character["y"])
                     Sleep(200)
-                    local play_game = aoc_api.AiFindPic(client_window["x1"]+780,client_window["y1"]+843,client_window["x1"]+826,client_window["y1"]+866,"play_game.bmp")
                     if play_game["ret"] ~= -1 then
                         aoc_api.dbgp("找到图片 play_game.bmp 位置")
                         Sleep(200)
@@ -83,6 +80,11 @@ local plot_nodes = {
             if env.join_game and in_game["ret"] == -1 then
                 aoc_api.dbgp("正在加载")
                 Sleep(800)
+                if play_game["ret"] ~= -1 then
+                    aoc_api.dbgp("找到图片 play_game.bmp 位置")
+                    Sleep(200)
+                    aoc_api.click(play_game["x"], play_game["y"])
+                end
                 return bret.RUNNING
             end
         end
@@ -186,8 +188,8 @@ local plot_nodes = {
             if player_info["bIsDead"] == true then
                 aoc_api.dbgp("角色死亡")
                 print("DEBUG: Setting TargetMovingPoint to nil")
-                aocapi2fun.TargetMovingPoint = nil 
-                aocapi2fun.death = true
+                env.TargetMovingPoint = nil
+                env.death = true
                 local revive = aoc_api.AiFindPic(client_window["x1"]+400,client_window["y1"]+369,client_window["x1"]+525,client_window["y1"]+413,"revive.bmp",0.90)
                 if revive["bIsDead"] ~= -1 then
                     aoc_api.dbgp("找到图片 revive.bmp 位置")
@@ -220,6 +222,18 @@ local plot_nodes = {
                 Sleep(500)
                 return bret.RUNNING
             end
+            local lv = env.player_info["Level"]
+            if lv >= 2 then
+                if env.skill2_pos and env.skill3_pos then
+                    aoc_api.dbgp("已找到技能位置")
+                    return bret.SUCCESS
+                end
+            elseif lv >= 1 then
+                if env.skill2_pos then
+                    aoc_api.dbgp("已找到技能位置")
+                    return bret.SUCCESS
+                end
+            end
             if env.player_info["Level"] >= 1 then
                 local skill2_1 = aoc_api.AiFindPic(client_window["x1"]+532,client_window["y1"]+826,client_window["x1"]+839,client_window["y1"]+889,"skill2_1.bmp")
                 local skill2_2 = aoc_api.AiFindPic(client_window["x1"]+532,client_window["y1"]+826,client_window["x1"]+839,client_window["y1"]+889,"skill2_2.bmp")
@@ -246,7 +260,7 @@ local plot_nodes = {
                 Sleep(200)
                 aoc_api.click_keyboard("k")
             end
-            return bret.SUCCESS
+            return bret.RUNNING
         end
     },
     Open_Skill = {
@@ -283,9 +297,6 @@ local plot_nodes = {
                 self.set_time = nil 
                 return bret.FAIL
             end
-            -- local confirm_choice = aoc_api.AiFindPic(client_window["x1"]+1350,client_window["y1"]+676,client_window["x1"]+1448,client_window["y1"]+708,"confirm_choice.bmp",0.95)
-            -- local monster_skill = aoc_api.AiFindPic(client_window["x1"]+1048,client_window["y1"]+625,client_window["x1"]+1093,client_window["y1"]+666,"monster_skill.bmp",0.95)
-            -- local treat_skill = aoc_api.AiFindPic(client_window["x1"]+1052,client_window["y1"]+583,client_window["x1"]+1090,client_window["y1"]+623,"treat_skill.bmp",0.95)
             local confirm_choice = aoc_api.AiFindPic(client_window["x1"],client_window["y1"],client_window["x2"],client_window["y2"],"confirm_choice.bmp",0.95)
             local monster_skill = aoc_api.AiFindPic(client_window["x1"],client_window["y1"],client_window["x2"],client_window["y2"],"monster_skill.bmp",0.95)
             local treat_skill = aoc_api.AiFindPic(client_window["x1"],client_window["y1"],client_window["x2"],client_window["y2"],"treat_skill.bmp",0.95)
@@ -308,7 +319,6 @@ local plot_nodes = {
                     aoc_api.click(select_skill["x"], select_skill["y"])
                     return bret.RUNNING
                 end
-                -- local add_skill = aoc_api.AiFindPic(client_window["x1"]+1048,client_window["y1"]+625,client_window["x1"]+1093,client_window["y1"]+666,"add_skill.bmp",0.99)
                 local add_skill = aoc_api.AiFindPic(client_window["x1"],client_window["y1"],client_window["x2"],client_window["y2"],"skill_tree.bmp",0.85)
                 if add_skill["ret"] ~= -1 then
                     aoc_api.dbgp("找到图片 add_skill.bmp 位置")
@@ -318,7 +328,6 @@ local plot_nodes = {
                 end
             end
             if treat_skill["ret"] == -1 then
-                -- local add_treat = aoc_api.AiFindPic(client_window["x1"]+1052,client_window["y1"]+583,client_window["x1"]+1090,client_window["y1"]+623,"add_treat.bmp",0.95)
                 local add_treat = aoc_api.AiFindPic(client_window["x1"],client_window["y1"],client_window["x2"],client_window["y2"],"add_treat.bmp",0.95)
                 if add_treat["ret"] ~= -1 then
                     if confirm_choice["ret"] ~= -1 then
@@ -328,7 +337,6 @@ local plot_nodes = {
                     end
                     return bret.RUNNING
                 end
-                -- local select_treat = aoc_api.AiFindPic(client_window["x1"]+1051,client_window["y1"]+582,client_window["x1"]+1090,client_window["y1"]+623,"select_treat.bmp",0.85)
                 local select_treat = aoc_api.AiFindPic(client_window["x1"],client_window["y1"],client_window["x2"],client_window["y2"],"select_treat.bmp",0.85)
                 if select_treat["ret"] ~= -1 then
                     aoc_api.dbgp("找到图片 select_treat.bmp 位置"..select_treat["x"]..","..select_treat["y"])
@@ -342,40 +350,305 @@ local plot_nodes = {
             return bret.RUNNING
         end
     },
-    IS_Move2Point = {
-        run = function(self, env) 
-            -- print("IS_Move2Point") 
-            local a = aocapi2fun.CheckArrivePoint()
-            if a == "running" then
+    Move_Ensure_TargetPoint = {
+        run = function(self, env)
+            aoc_api.dbgp("L:确保当前有目标点")
+            if env.TargetMovingPoint == nil then
+                aoc_api.dbgp("TargetMovingPoint nil, recalculating path")
+                env.TargetMovingPoint = aoc_api.bt_WayGetFastWay(env.AllWay)
+                aoc_api.dbgp("添加路径")
+            end
+            return bret.SUCCESS
+        end
+    },
+    Move_Update_TargetDistance = {
+        run = function(self, env)
+            aoc_api.dbgp("L:更新目标点距离")
+            if env.TargetMovingPoint == nil then
                 return bret.RUNNING
             end
-            if a == true then
-                return bret.SUCCESS
+            local dis = aoc_api.bt_Point2PointDis(
+                env.player_info.worldX,
+                env.player_info.worldY,
+                env.player_info.worldZ,
+                env.TargetMovingPoint[WayData.worldX],
+                env.TargetMovingPoint[WayData.worldY],
+                env.TargetMovingPoint[WayData.worldZ]
+            )
+            env.TargetMovingPoint[WayData.Dis] = dis
+            aoc_api.dbgp("Dis", tostring(env.TargetMovingPoint[WayData.Dis]))
+            return bret.SUCCESS
+        end
+    },
+    Move_Handle_Resets = {
+        run = function(self, env)
+            aoc_api.dbgp("L:处理死亡/超远重置")
+            if env.TargetMovingPoint == nil then
+                return bret.RUNNING
             end
-            return bret.FAIL 
+            local dis = env.TargetMovingPoint[WayData.Dis] or 0
+            if env.death and dis > 1000 then
+                aoc_api.dbgp("死亡,重置目标点")
+                env.TargetMovingPoint = nil
+                env.death = false
+                return bret.RUNNING
+            end
+            if dis > 15000 then
+                aoc_api.dbgp("距离目标点过远,重置目标点")
+                env.TargetMovingPoint = nil
+                iii = 0
+                return bret.RUNNING
+            end
+            return bret.SUCCESS
+        end
+    },
+    Move_Handle_ArrivalAndMode = {
+        run = function(self, env)
+            aoc_api.dbgp("到达点与打怪模式切换")
+            if env.TargetMovingPoint == nil then
+                return bret.RUNNING
+            end
+            local distance = 500
+            if env.TargetMovingPoint[WayData.flag] == Wayflag.WaitZ then
+                distance = 300
+            end
+            if (env.TargetMovingPoint[WayData.Dis] or 999999) >= distance then
+                env.IsAtkMonsterNow = false
+                env.player_info.ActiveTarget = 0
+                SetFacing(
+                    env.TargetMovingPoint[WayData.worldX],
+                    env.TargetMovingPoint[WayData.worldY],
+                    env.TargetMovingPoint[WayData.worldZ]
+                )
+                return bret.FAIL
+            end
+
+            aoc_api.dbgp("到达路径点")
+            iii = iii + 1
+
+            local current_lv = env.player_info.Level
+            if env.IsAtkMonsterNow then
+                if self.api2_last_lv == nil then
+                    self.api2_last_lv = current_lv
+                end
+                if current_lv > self.api2_last_lv and current_lv < 4 then
+                    aoc_api.dbgp("已升级,继续寻路")
+                    env.IsAtkMonsterNow = false
+                    env.TargetMovingPoint = aoc_api.bt_WayPoint2NextPoint(env.TargetMovingPoint, env.AllWay)
+                else
+                    aoc_api.dbgp("升级路中测试")
+                end
+            else
+                if env.TargetMovingPoint[WayData.flag] == Wayflag.atk then
+                    if current_lv == 1 then
+                        if string.find(env.TargetMovingPoint[WayData.Name], "附近打怪升2") then
+                            aoc_api.dbgp("选择打怪2")
+                            self.api2_last_lv = current_lv
+                            env.IsAtkMonsterNow = true
+                        end
+                    elseif current_lv == 2 then
+                        if string.find(env.TargetMovingPoint[WayData.Name], "附近打怪升3") then
+                            aoc_api.dbgp("选择打怪3")
+                            self.api2_last_lv = current_lv
+                            env.IsAtkMonsterNow = true
+                        end
+                    elseif current_lv < 5 then
+                        if current_lv > 2 then
+                            env.TargetMovingPoint[WayData.flag] = Wayflag.run
+                        end
+                        if string.find(env.TargetMovingPoint[WayData.Name], "狮子刷级点1") then
+                            aoc_api.dbgp("选择打怪5")
+                            self.api2_last_lv = current_lv
+                            env.IsAtkMonsterNow = true
+                        end
+                    end
+                elseif env.TargetMovingPoint[WayData.flag] == Wayflag.WaitZ then
+                    if next(aoc_api.is_have_monster(env.range_info, env.player_info, "", 800)) then
+                        aoc_api.dbgp("L:有怪")
+                        self.api2_last_lv = current_lv
+                        env.IsAtkMonsterNow = true
+                    end
+                    local npc = aoc_api.is_have_Npc(env.range_info, env.player_info, "Elevator Attendant")
+                    if next(npc) then
+                        SetFacing(npc.worldX, npc.worldY, npc.worldZ)
+                        Sleep(1000)
+                        aoc_api.click_keyboard("f")
+                        Sleep(1000)
+                        aoc_api.click_keyboard("g")
+                        Sleep(1000)
+                        aoc_api.click_keyboard("f")
+                        Sleep(3000)
+                        env.TargetMovingPoint = nil
+                    end
+                elseif env.TargetMovingPoint[WayData.flag] == Wayflag.run then
+                    aoc_api.dbgp("切换跑步模式")
+                    env.TargetMovingPoint = aoc_api.bt_WayPoint2NextPoint(env.TargetMovingPoint, env.AllWay)
+                elseif env.TargetMovingPoint[WayData.flag] == Wayflag.endpoint then
+                    aoc_api.dbgp("路径终点,没有路了")
+                end
+            end
+
+            return bret.SUCCESS
         end
     },
     path_move = {
-        run = function(self, env) 
-            -- print("path_move")
-            aocapi2fun.CheckAtkAndRun()
+        run = function(self, env)
+            aoc_api.dbgp("持续移动")
+            if env.player_info.bIsDead then
+                return bret.RUNNING
+            end
+            if env.player_info.bMovementInProgress == false then
+                if env.TargetMovingPoint and env.TargetMovingPoint[WayData.flag] ~= Wayflag.WaitZ then
+                    aoc_api.click_keyboard("space")
+                end
+                aoc_api.dbgp("开始跑路")
+                SetMaxRunSpeed(800)
+                SetAutoMove(true)
+            end
             return bret.RUNNING
         end
     },
     Is_Monster = {
-        run = function(self, env) 
-            -- print("Is_Monster") 
-            local a =  aocapi2fun.HaveMonster()
-            if  not a or not next(a)  then
+        run = function(self, env)
+            aoc_api.dbgp("是否有怪")
+            local monster = false
+            if env.IsAtkMonsterNow == true then
+                if not env.player_info.bIsDead then
+                    if env.player_info.Level < 2 then
+                        print("L:Clayborn")
+                        env.ATKTargetMonster = aoc_api.is_have_monster(env.range_info, env.player_info, "Empty Clayborn")[1]
+                    elseif env.player_info.Level < 3 then
+                        print("L:Stonewoke")
+                        env.ATKTargetMonster = aoc_api.is_have_monster(env.range_info, env.player_info, "Stonewoke Automata")[1]
+                    elseif env.player_info.Level < 5 then
+                        print("L:Lion")
+                        env.ATKTargetMonster = aoc_api.is_have_monster(env.range_info, env.player_info, "Juvenile Mountain Lion")[1]
+                    end
+                    if env.ATKTargetMonster == {} then
+                        print("L:附近没怪")
+                    end
+                end
+                monster = env.ATKTargetMonster
+            end
+            if not monster or not next(monster) then
+                env.IsAtkMonsterNow = false
+                env.ATKTargetMonster = nil
                 return bret.FAIL
             end
-            return bret.SUCCESS 
+            return bret.SUCCESS
         end
     },
-    attack = {
-        run = function(self, env) 
-            print("attack")
-            aocapi2fun.CheckAtkAndRun()
+    Combat_Stop_Move = {
+        run = function(self, env)
+            aoc_api.dbgp("战斗停止自动移动")
+            if env.player_info.bMovementInProgress == true then
+                aoc_api.dbgp("战斗停止自动移动")
+                SetAutoMove(false)
+            end
+            return bret.SUCCESS
+        end
+    },
+    Combat_Switch_Target = {
+        run = function(self, env)
+            aoc_api.dbgp("战斗切换目标锁定")
+            if env.player_info.bIsDead then
+                env.IsAtkMonsterNow = false
+                env.player_info.ActiveTarget = 0
+                return bret.FAIL
+            end
+
+            local hpp = (env.player_info.CurrentHealth / env.player_info.MaxHealth) * 100
+            aoc_api.dbgp("当前生命值百分比", tostring(hpp))
+            if (env.player_info.ActiveTarget ~= env.ATKTargetMonster.ObjectIndex or env.ATKTargetMonster.bIsDead) and hpp > 30 then
+
+                if not next(env.player_info.Pets) then
+                    aoc_api.dbgp("切换目标,没有宠物")
+                    aoc_api.click_keyboard("2")
+                    Sleep(7500)
+                    SetPetStance(1)
+                else
+                    aoc_api.dbgp("锁定最近的目标")
+                    AutoAttackEnabled(true)
+                    SetFacing(env.ATKTargetMonster.worldX, env.ATKTargetMonster.worldY,env.ATKTargetMonster.worldZ)
+                    SetActiveTarget(env.ATKTargetMonster.objAddr, 1)
+                    if env.player_info.ActiveTarget ~= env.ATKTargetMonster.ObjectIndex then
+                        aoc_api.dbgp("没有目标,尝试TAB")
+                        aoc_api.click_keyboard("tab")
+                        Sleep(300)
+                    end
+                end
+            elseif hpp <= 30 and( not env.player_info.bInCombat or env.player_info.ActiveTarget == 0) then
+                aoc_api.dbgp("生命值低于30%,不切换目标")
+                local resting = aoc_api.AiFindPic(client_window["x1"]+70,client_window["y1"]+60,client_window["x1"]+344,client_window["y1"]+100,"resting.bmp",0.85)
+                if resting["ret"] == -1 then
+                    aoc_api.click_keyboard("X")
+                end
+                return bret.RUNNING
+            end
+
+            return bret.SUCCESS
+        end
+    },
+    Combat_Fight_Tick = {
+        run = function(self, env)
+            aoc_api.dbgp("战斗施放与回血")
+            if env.player_info.bIsDead then
+                env.IsAtkMonsterNow = false
+                env.player_info.ActiveTarget = 0
+                return bret.RUNNING
+            end
+            SetFacing(env.ATKTargetMonster.worldX, env.ATKTargetMonster.worldY,env.ATKTargetMonster.worldZ)
+            local hpp = (env.player_info.CurrentHealth / env.player_info.MaxHealth) * 100
+            aoc_api.dbgp("当前生命值百分比", tostring(hpp))
+            local monster_use_skill = aoc_api.AiFindPic(client_window["x1"]+70,client_window["y1"]+60,client_window["x1"]+344,client_window["y1"]+100,"monster_use_skill.bmp",0.85)
+            if monster_use_skill["ret"] == -1 then
+                aoc_api.click_keyboard("=")
+            end
+            if env.player_info.ActiveTarget ~= 0 then
+                if not next(env.player_info.Pets) then
+                    aoc_api.dbgp("战斗中没有宠物,尝试召唤")
+                    aoc_api.click_keyboard("2")
+                    Sleep(7500)
+                    SetPetStance(1)
+                    return bret.RUNNING
+                end
+
+                if not env.player_info.bIsUsingRangedWeapon == true then
+                    aoc_api.dbgp("切换远程武器")
+                    keyboard_key(0, 81)
+                    Sleep(100)
+                    keyboard_key(1, 81)
+                    Sleep(100)
+                end
+
+                aoc_api.dbgp("普通攻击与技能循环")
+
+                if not env.player_info.bAutoAttacking_Client then
+                    keyboard_key(0, 69)
+                    Sleep(100)
+                    keyboard_key(1, 69)
+                    Sleep(100)
+                    AutoAttackEnabled(true)
+                end
+
+                if addskill > 60 then
+                    aoc_api.click_keyboard("1")
+                    addskill = 0
+                else
+                    addskill = addskill + 1
+                end
+
+                if next(env.player_info.Pets) then
+                    aoc_api.dbgp("召唤物治疗计数", tostring(AddHP))
+                    if AddHP > 70 then
+                        aoc_api.click_keyboard("3")
+                        AddHP = 0
+                    else
+                        AddHP = AddHP + 1
+                    end
+                end
+            end
+
             return bret.RUNNING
         end
     }
@@ -392,8 +665,13 @@ behavior_node.process(all_nodes)
 local env_params = {
     select_summoner = nil,
     join_game = nil,
+    range_info = nil,
     player_info = nil,
-    API2_FastWay = nil,
+    AllWay = nil ,           --所有路线点
+    TargetMovingPoint = nil, --目地移动点
+    IsAtkMonsterNow = false ,--当前打怪/寻路
+    ATKTargetMonster = nil, --当前攻击目标
+    death = false ,        --是否死亡
 }
 -- 导出模块接口
 local aoc_bt = {}

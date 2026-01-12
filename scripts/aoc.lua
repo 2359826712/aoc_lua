@@ -31,21 +31,21 @@ local plot_nodes = {
             aoc_api.dbgp("Is_In_Game")
             local close = aoc_api.AiFindPic(client_window["x1"]+582,client_window["y1"]+349,client_window["x1"]+1021,client_window["y1"]+624,"close.bmp",0.85)
             local play_game = aoc_api.AiFindPic(client_window["x1"]+780,client_window["y1"]+843,client_window["x1"]+826,client_window["y1"]+866,"play_game.bmp")
-            if close["ret"] ~= -1 then
+            if close["ret"] ~= -1 and close["x"] > 0 then
                 aoc_api.dbgp("找到图片 close.bmp 位置")
                 aoc_api.click(close["x"], close["y"])
                 Sleep(200)
                 return bret.RUNNING
             end
             local okay = aoc_api.AiFindPic(client_window["x1"]+582,client_window["y1"]+349,client_window["x1"]+1021,client_window["y1"]+624,"okay.bmp")
-            if okay["ret"] ~= -1 then
+            if okay["ret"] ~= -1 and okay["x"] > 0 then
                 aoc_api.dbgp("找到图片 okay.bmp 位置")
                 aoc_api.click(okay["x"], okay["y"])
                 Sleep(200)
                 return bret.RUNNING
             end
             local in_game = aoc_api.AiFindPic(client_window["x1"]+13,client_window["y1"]+18,client_window["x1"]+73,client_window["y1"]+83,"in_game.bmp")
-            if in_game["ret"] ~= -1 then
+            if in_game["ret"] ~= -1 and in_game["x"] > 0 then
                 env.join_game = true
                 --刷新数据用
                 env.range_info = traverse_all_objects()
@@ -57,8 +57,8 @@ local plot_nodes = {
             if not env.join_game then
                 local character = aoc_api.AiFindPic(client_window["x1"]+1529,client_window["y1"]+316,client_window["x1"]+1574,client_window["y1"]+374,"character.bmp")
                 local wait_server = aoc_api.AiFindPic(client_window["x1"]+627,client_window["y1"]+353,client_window["x1"]+992,client_window["y1"]+650,"wait_server.bmp")
-                if character["ret"] ~= -1 then
-                    if wait_server["ret"] ~= -1 then
+                if character["ret"] ~= -1 and character["x"] > 0 then
+                    if wait_server["ret"] ~= -1 and wait_server["x"] > 0 then
                         aoc_api.dbgp("找到图片 wait_server.bmp 位置")
                         env.join_game = true
                         env.selected_summoner = true
@@ -67,7 +67,7 @@ local plot_nodes = {
                     aoc_api.dbgp("有角色")
                     aoc_api.click(character["x"], character["y"])
                     Sleep(200)
-                    if play_game["ret"] ~= -1 then
+                    if play_game["ret"] ~= -1 and play_game["x"] > 0 then
                         aoc_api.dbgp("找到图片 play_game.bmp 位置")
                         Sleep(200)
                         aoc_api.click(play_game["x"], play_game["y"])
@@ -80,7 +80,7 @@ local plot_nodes = {
             if env.join_game and in_game["ret"] == -1 then
                 aoc_api.dbgp("正在加载")
                 Sleep(800)
-                if play_game["ret"] ~= -1 then
+                if play_game["ret"] ~= -1 and play_game["x"] > 0 then
                     env.join_game = false
                 end
                 return bret.RUNNING
@@ -455,10 +455,19 @@ local plot_nodes = {
                         if current_lv > 2 then
                             env.TargetMovingPoint[WayData.flag] = Wayflag.run
                         end
-                        if string.find(env.TargetMovingPoint[WayData.Name], "狮子刷级点1") then
-                            aoc_api.dbgp("选择打怪5")
-                            self.api2_last_lv = current_lv
-                            env.IsAtkMonsterNow = true
+                        if current_lv == 3 then
+                            if string.find(env.TargetMovingPoint[WayData.Name], "狮子刷级点1") then
+                                aoc_api.dbgp("选择打怪5")
+                                self.api2_last_lv = current_lv
+                                env.IsAtkMonsterNow = true
+                            end
+                        end
+                        if current_lv == 4 then
+                            if string.find(env.TargetMovingPoint[WayData.Name], "狮子刷级点2") then
+                                aoc_api.dbgp("选择打怪6")
+                                self.api2_last_lv = current_lv
+                                env.IsAtkMonsterNow = true
+                            end
                         end
                     end
                 elseif env.TargetMovingPoint[WayData.flag] == Wayflag.WaitZ then

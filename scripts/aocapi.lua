@@ -2,6 +2,10 @@ local _M = {} -- 主接口表
 local json = require 'scripts.lualib.json'
 local my_game_info = require 'scripts\\my_game_info'
 local game_str = require 'scripts\\game_str'
+ AddHP=0
+ addskill=0
+ needhealth=false
+ DownX=false
 
 _M.AiFindPic = function(x1,y1,x2,y2,pic,dis )
     dis = dis or 0.9
@@ -26,7 +30,7 @@ _M.click_keyboard = function(key,model)
     local key_code = my_game_info.ascii_dict[key:lower()]
     if model == 0 then
         keyboard_key(0,key_code)
-        Sleep(100)
+        Sleep(math.random(30,50))
         keyboard_key(1,key_code)
     elseif model == 1 then
         keyboard_key(0,key_code)
@@ -413,5 +417,113 @@ _M.paste_text = function(text)
     Sleep(200)
     _M.click_keyboard("ctrl", 2)
 end
+_M.Point2PointDis = function(Current_x, Current_y, Current_z, Point_x, Point_y, Point_z)
+    local locations = nil
+    local X = Point_x - Current_x
+    local Y = Point_y - Current_y
+    local Z = Point_z - Current_z
+    local dis = math.sqrt(X * X + Y * Y + Z * Z)
+    locations = dis
+    return locations
+end
+_M.Point2PointDis = function(x1, y1, z1, x2, y2, z2)
+    local dx = x1 - x2
+    local dy = y1 - y2
+    local dz = z1 - z2
+    return math.sqrt(dx * dx + dy * dy + dz * dz)
+end
 
+_M.is_have_monster = function(range_info,player_info,name,dis)
+    name = name or ""
+    dis = dis or 8000
+    local monster_list = {}
+    for _, monster in ipairs(range_info) do
+        if monster.bIsDead == true or  monster.characterName == player_info.characterName or string.find(monster.objName, "Pet_Summoner") then
+            goto continue
+        end
+        if not string.find(monster.characterName, name) then
+            goto continue
+        end
+        local Dis = _M.Point2PointDis(player_info.worldX, player_info.worldY, player_info.worldZ, monster.worldX, monster.worldY, monster.worldZ)
+        if Dis <= dis then
+            monster.dis = Dis
+            table.insert(monster_list, monster)
+        end
+        ::continue::
+    end
+    
+    -- 按距离排序
+    table.sort(monster_list, function(a, b)
+        return a.dis < b.dis
+    end)
+    
+    return monster_list
+end
+_M.is_have_Npc = function(range_info,player_info,name)
+    name = name or ""
+    local monster_list = {}
+    for _, monster in ipairs(range_info) do
+        if not string.find(monster.characterName, name) then
+            goto continue
+        end
+        local dis = _M.Point2PointDis(player_info.worldX, player_info.worldY, player_info.worldZ, monster.worldX, monster.worldY, monster.worldZ)
+        if dis <= 800 then
+            monster.dis = dis
+            table.insert(monster_list, monster)
+        end
+        ::continue::
+    end
+    
+    -- 按距离排序
+    table.sort(monster_list, function(a, b)
+        return a.dis < b.dis
+    end)
+    
+    return monster_list
+end
+function randomInRange(a, b)
+    return a + math.random() * (b - a)
+end
+
+function  GetSendText(GetText)
+    local index =  math.random(1,5)
+       
+     local color = {
+   "Item_Uncommon" ,
+   "Item_Heroic" ,
+   "Item_Epic" ,
+   "Item_Rare" ,
+   "Item_Legendary" }
+   local ItemsList={
+    "\" metaType=\"ItemLink\" metaGUID=\"6064632145998709229\" metaItemQuality=\"52\" metaEnchantLevel=\"0\" metaTemperingPercent=\"0\" metaDurability=\"34\">[",
+    "\" metaType=\"ItemLink\" metaGUID=\"6064631481841025063\" metaItemQuality=\"71\" metaEnchantLevel=\"0\" metaTemperingPercent=\"0\" metaDurability=\"0\">[",
+    "\" metaType=\"ItemLink\" metaGUID=\"6064628912716447747\" metaItemQuality=\"71\" metaEnchantLevel=\"0\" metaTemperingPercent=\"0\" metaDurability=\"0\">[",
+    "\" metaType=\"ItemLink\" metaGUID=\"6064631481841025063\" metaItemQuality=\"71\" metaEnchantLevel=\"0\" metaTemperingPercent=\"0\" metaDurability=\"0\">[",
+    "\" metaType=\"ItemLink\" metaGUID=\"6064628912716447747\" metaItemQuality=\"71\" metaEnchantLevel=\"0\" metaTemperingPercent=\"0\" metaDurability=\"0\">[",
+   }
+    local Text="<a id=\"Item\" style=\""..color[index]..ItemsList[index]..GetText.."]</>"
+    return Text
+end
+
+_M.shouting = function(text)
+    local index =  math.random(1,5)
+     local WEB = {
+   "MMOELD" ,
+   "AOCGG" ,
+   "MMO_ELD" ,
+   "AOC_GG" ,
+   "aocgg" ,
+   }
+      local AddText={
+        "**_Quick Heads-Up: 30% off is live for a short time – perfect timing to refresh your inventory",
+    "_*Grab 30% off this week as a thank you for being part of our crew! ",
+    "*Little holiday hack floating around discords lately",
+    "Insider vibe check – <MmoEld/cOM> still going strong for the fam",
+    "Insider trick floating around the crew lately – hits different",
+   }
+    --_M.paste_text(text)
+    --_M.click_keyboard("enter", 0)
+    SendChatMessage(GetSendText(WEB[index]).."_"..GetSendText("C0M").."___WTBS_"..AddText[index],50);
+    SendChatMessage(GetSendText(WEB[index]).."_"..GetSendText("C0M").."___WTBS_"..AddText[index],55);
+end
 return _M

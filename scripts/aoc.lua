@@ -6,11 +6,14 @@ local behavior_tree = require 'scripts.lualib.behavior3.behavior_tree'
 
 local bret = require 'scripts.lualib.behavior3.behavior_ret'
 
-Log("清除 aocapi 模块的缓存")
+-- Log("清除 aocapi 模块的缓存")
 package.loaded['scripts\\my_game_info'] = nil
 package.loaded['scripts\\aocapi'] = nil
 package.loaded['scripts\\game_str'] = nil
 package.loaded['json'] = nil
+package.loaded['scripts/aocapi2'] = nil
+package.loaded['scripts/aocapi2fun'] = nil
+-- package.loaded['scripts/aocapi2test'] = nil
 
 -- 加载基础节点类型
 local base_nodes = require 'scripts.lualib.behavior3.sample_process'
@@ -18,13 +21,19 @@ local json = require 'scripts.lualib.json'
 local aoc_api = require "scripts\\aocapi"
 local hwd = FindWindow("UnrealWindow","Ashes of Creation  ")
 local client_window = GetClientRect(hwd)
+local aocapi2 = require "scripts/aocapi2"
+local aocapi2fun = require 'scripts/aocapi2fun'
+-- local aocapi2test = require 'scripts/aocapi2test'
+
 -- 行为节点 具体代码
 local plot_nodes = {
     Set_Game_Window = {
         run = function(self, env)
+            --刷新数据用
+            aocapi2fun.RObjData()
             return bret.FAIL
         end
-    },
+    }, 
     Is_In_Game = {
         run = function(self, env)
             aoc_api.dbgp("Is_In_Game")
@@ -73,6 +82,7 @@ local plot_nodes = {
             end
             if env.join_game and in_game["ret"] == -1 then
                 aoc_api.dbgp("正在加载")
+                Sleep(800)
                 return bret.RUNNING
             end
         end
@@ -175,6 +185,9 @@ local plot_nodes = {
             -- aoc_api.printTable(player_info)
             if player_info["bIsDead"] == true then
                 aoc_api.dbgp("角色死亡")
+                print("DEBUG: Setting TargetMovingPoint to nil")
+                aocapi2fun.TargetMovingPoint = nil 
+                aocapi2fun.death = true
                 local revive = aoc_api.AiFindPic(client_window["x1"]+400,client_window["y1"]+369,client_window["x1"]+525,client_window["y1"]+413,"revive.bmp",0.90)
                 if revive["bIsDead"] ~= -1 then
                     aoc_api.dbgp("找到图片 revive.bmp 位置")
@@ -186,6 +199,17 @@ local plot_nodes = {
             return bret.SUCCESS
         end
 
+    },
+    shouting = {
+        run = function(self, env)
+            local player = get_local_player()
+            if player["Level"] >= 5 then
+                aoc_api.dbgp("喊话")
+                aoc_api.shouting("hello")
+                return bret.RUNNING
+            end
+            return bret.SUCCESS
+        end
     },
     Skill_Correct = {
         run = function(self, env)
@@ -317,7 +341,45 @@ local plot_nodes = {
             end
             return bret.RUNNING
         end
+    },
+    IS_Move2Point = {
+        run = function(self, env) 
+            -- print("IS_Move2Point") 
+            local a = aocapi2fun.CheckArrivePoint()
+            if a == "running" then
+                return bret.RUNNING
+            end
+            if a == true then
+                return bret.SUCCESS
+            end
+            return bret.FAIL 
+        end
+    },
+    path_move = {
+        run = function(self, env) 
+            -- print("path_move")
+            aocapi2fun.CheckAtkAndRun()
+            return bret.RUNNING
+        end
+    },
+    Is_Monster = {
+        run = function(self, env) 
+            -- print("Is_Monster") 
+            local a =  aocapi2fun.HaveMonster()
+            if  not a or not next(a)  then
+                return bret.FAIL
+            end
+            return bret.SUCCESS 
+        end
+    },
+    attack = {
+        run = function(self, env) 
+            print("attack")
+            aocapi2fun.CheckAtkAndRun()
+            return bret.RUNNING
+        end
     }
+
 }
 local all_nodes = {}
 for k, v in pairs(base_nodes) do all_nodes[k] = v end
@@ -328,14 +390,16 @@ local behavior_node = require 'scripts.lualib.behavior3.behavior_node'
 behavior_node.process(all_nodes)
 -- 黑板参数
 local env_params = {
-   select_summoner = nil,
-   join_game = nil,
-   player_info = nil
+    select_summoner = nil,
+    join_game = nil,
+    player_info = nil,
+    API2_FastWay = nil,
 }
--- 导出模块接口 
+-- 导出模块接口
 local aoc_bt = {}
 function aoc_bt.create()
-    local bt = behavior_tree.new("aoc",env_params)
+    local bt = behavior_tree.new("aoc", env_params)
     return bt
 end
+
 return aoc_bt

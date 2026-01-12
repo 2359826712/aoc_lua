@@ -25,7 +25,6 @@ while true do
     -- 记录开始时间（毫秒）
     -- local start_time = api_GetTickCount64()  -- 转换为 ms
     
-    
     bt:interrupt()  -- 清空节点栈和YIELD标记
     -- Log("qqqqqqqqqqqqqqq")
     local success, err = pcall(function()

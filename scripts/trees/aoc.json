@@ -31,25 +31,29 @@
       },
       {
         "id": 7,
+        "name": "shouting"
+      },
+      {
+        "id": 8,
         "name": "Selector",
         "desc": "技能",
         "children": [
           {
-            "id": 8,
+            "id": 9,
             "name": "Skill_Correct",
             "desc": "技能是否正确"
           },
           {
-            "id": 9,
+            "id": 10,
             "name": "Sequence",
             "children": [
               {
-                "id": 10,
+                "id": 11,
                 "name": "Open_Skill",
                 "desc": "是否打开技能页面"
               },
               {
-                "id": 11,
+                "id": 12,
                 "name": "Set_Skill",
                 "desc": "设置技能"
               }
@@ -58,34 +62,34 @@
         ]
       },
       {
-        "id": 12,
+        "id": 13,
         "name": "Selector",
         "desc": "移动",
         "children": [
           {
-            "id": 13,
-            "name": "Reached_Monster_Or_Level",
+            "id": 14,
+            "name": "IS_Move2Point",
             "desc": "是否到达指定怪物或者等级"
           },
           {
-            "id": 14,
+            "id": 15,
             "name": "path_move",
             "desc": "移动"
           }
         ]
       },
       {
-        "id": 15,
+        "id": 16,
         "name": "Sequence",
         "desc": "是否攻击",
         "children": [
           {
-            "id": 16,
+            "id": 17,
             "name": "Is_Monster",
             "desc": "是否有怪"
           },
           {
-            "id": 17,
+            "id": 18,
             "name": "attack",
             "desc": "攻击"
           }

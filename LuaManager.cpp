@@ -49,26 +49,42 @@ void LuaManager::RegisterFunctions() {
         auto p = GameManager::GetInstance().GetLocalPlayer();
         sol::table t = lua_.create_table();
         if (p) {
-            t["objAddr"] = static_cast<uint64_t>(p->objAddr);
-            t["objName"] = p->objName;
-            t["characterName"] = p->characterName;
-            t["CharacterType"] = p->CharacterType;
-            t["Level"] = p->Level;
-            t["bMovementInProgress"] = p->bMovementInProgress;
-            t["bIsUsingRangedWeapon"] = p->bIsUsingRangedWeapon;
-            t["bAutoAttacking_Client"] = p->bAutoAttacking_Client;
-            t["bIsDead"] = p->bIsDead;
-            t["ActiveTarget"] = p->ActiveTarget;
-            t["ObjectIndex"] = p->ObjectIndex;
-            t["APlayerController"] = static_cast<uint64_t>(p->APlayerController);
-            t["CurrentHealth"] = p->CurrentHealth;
-            t["MaxHealth"] = p->MaxHealth;
-            t["CurrentMana"] = p->CurrentMana;
-            t["MaxMana"] = p->MaxMana;
-            t["CurrentStamina"] = p->CurrentStamina;
-            t["worldX"] = p->worldX;
-            t["worldY"] = p->worldY;
-            t["worldZ"] = p->worldZ;
+            t["objAddr"] = static_cast<uint64_t>(p->objAddr);          // 对象地址
+            t["objName"] = p->objName;                                 // 对象名称
+            t["characterName"] = p->characterName;                     // 角色名称
+            t["CharacterType"] = p->CharacterType;                     // 角色类型
+            t["Level"] = p->Level;                                     // 等级
+            t["bMovementInProgress"] = p->bMovementInProgress;         // 移动是否进行中
+            t["bIsUsingRangedWeapon"] = p->bIsUsingRangedWeapon;       // 是否正在使用远程武器
+            t["bAutoAttacking_Client"] = p->bAutoAttacking_Client;     // 客户端自动攻击
+            t["bIsDead"] = p->bIsDead;                                 // 是否死亡
+            t["ActiveTarget"] = p->ActiveTarget;                       // 当前目标
+            t["ObjectIndex"] = p->ObjectIndex;                         // 对象索引
+            t["APlayerController"] = static_cast<uint64_t>(p->APlayerController); // 玩家控制器地址
+            t["CurrentHealth"] = p->CurrentHealth;                     // 当前生命值
+            t["MaxHealth"] = p->MaxHealth;                             // 最大生命值
+            t["CurrentMana"] = p->CurrentMana;                         // 当前法力值
+            t["MaxMana"] = p->MaxMana;                                 // 最大法力值
+            t["CurrentStamina"] = p->CurrentStamina;                   // 当前耐力值
+            t["worldX"] = p->worldX;                                   // 世界坐标X
+            t["worldY"] = p->worldY;                                   // 世界坐标Y
+            t["worldZ"] = p->worldZ;                                   // 世界坐标Z
+            t["PetStance"] = p->PetStance;                             // 宠物姿态
+            t["bInvulnerable"] = p->bInvulnerable;                     // 无敌状态
+            t["bUnkillable"] = p->bUnkillable;                         // 不可击杀状态
+            t["bPvPForceFlag"] = p->bPvPForceFlag;                     // PVP强制标志
+            t["InPvpSuppressionArea"] = p->InPvpSuppressionArea;       // 是否在PVP抑制区域
+            t["bInCombat"] = p->bInCombat;                             // 是否在战斗中
+
+            sol::table pets = lua_.create_table();
+            for (size_t i = 0; i < p->Pets.size(); ++i) {
+                sol::table pet = lua_.create_table();
+                pet["ObjectIndex"] = p->Pets[i].PetPtr.ObjectIndex;               // 宠物对象索引
+                pet["ObjectSerialNumber"] = p->Pets[i].PetPtr.ObjectSerialNumber; // 宠物对象序列号
+                pet["SpawnEffectId"] = p->Pets[i].SpawnEffectId;                  // 宠物生成效果ID
+                pets[i + 1] = pet;
+            }
+            t["Pets"] = pets;
         }
         return t;
     });
@@ -103,6 +119,23 @@ void LuaManager::RegisterFunctions() {
             t["worldX"] = sp->worldX;
             t["worldY"] = sp->worldY;
             t["worldZ"] = sp->worldZ;
+            t["PetStance"] = sp->PetStance;
+            t["bInvulnerable"] = sp->bInvulnerable;
+            t["bUnkillable"] = sp->bUnkillable;
+            t["bPvPForceFlag"] = sp->bPvPForceFlag;
+            t["InPvpSuppressionArea"] = sp->InPvpSuppressionArea;
+            t["bInCombat"] = sp->bInCombat;
+
+            sol::table pets = lua_.create_table();
+            for (size_t i = 0; i < sp->Pets.size(); ++i) {
+                sol::table pet = lua_.create_table();
+                pet["ObjectIndex"] = sp->Pets[i].PetPtr.ObjectIndex;               // 宠物对象索引
+                pet["ObjectSerialNumber"] = sp->Pets[i].PetPtr.ObjectSerialNumber; // 宠物对象序列号
+                pet["SpawnEffectId"] = sp->Pets[i].SpawnEffectId;                  // 宠物生成效果ID
+                pets[i + 1] = pet;
+            }
+            t["Pets"] = pets;
+
             list[idx++] = t;
         }
         return list;
@@ -238,6 +271,56 @@ void LuaManager::RegisterFunctions() {
         if (!player) return false;
         player->SetMaxRunSpeed(speed);
         return true;
+    });
+
+    // Lua: SetActiveTarget(targetAddr, intention)
+    // 参数:
+    //   targetAddr: uint64_t 目标对象地址
+    //   intention: int 意图 (0: None, 1: Harm, 2: Support)
+    lua_.set_function("SetActiveTarget", [](uint64_t targetAddr, int intention) {
+        auto player = GameManager::GetInstance().GetLocalPlayer();
+        if (!player) return;
+        player->SetActiveTarget(targetAddr, static_cast<Params::ETargetingIntention>(intention));
+    });
+
+    // Lua: AutoAttackEnabled(enable)
+    // 参数:
+    //   enable: bool 是否启用自动攻击
+    lua_.set_function("AutoAttackEnabled", [](bool enable) {
+        auto player = GameManager::GetInstance().GetLocalPlayer();
+        if (!player) return;
+        player->AutoAttackEnabled(enable);
+    });
+
+    // Lua: SendChatMessage(message, category)
+    // 参数:
+    //   message: string 消息内容
+    //   category: int 频道类型 GLOBAL = 50,
+    lua_.set_function("SendChatMessage", [](std::string message, int category) {
+        auto player = GameManager::GetInstance().GetLocalPlayer();
+        if (player) {
+            player->SendChatMessage(Utf8ToWide(message), (char)category);
+        }
+    });
+
+    // Lua: SetAutoMove(enable)
+    // 参数:
+    //   enable: bool 是否启用自动移动
+    lua_.set_function("SetAutoMove", [](bool enable) {
+        auto player = GameManager::GetInstance().GetLocalPlayer();
+        if (player) {
+            player->SetAutoMove(enable);
+        }
+    });
+
+    // Lua: SetPetStance(stance)
+    // 参数:
+    //   stance: int 宠物姿态 (0: None, 1: Aggressive, 2: Defensive, 3: Passive)
+    lua_.set_function("SetPetStance", [](int stance) {
+        auto player = GameManager::GetInstance().GetLocalPlayer();
+        if (player) {
+            player->SetPetStance((uint8_t)stance);
+        }
     });
 
     // Lua: GetExecutablePath()

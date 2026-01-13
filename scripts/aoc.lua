@@ -565,6 +565,12 @@ local plot_nodes = {
 
             local hpp = (env.player_info.CurrentHealth / env.player_info.MaxHealth) * 100
             aoc_api.dbgp("当前生命值百分比", tostring(hpp))
+            if hpp <=80 and env.need_heath then
+                aoc_api.dbgp("生命值低于80%,需要治疗")
+                return bret.RUNNING
+            else
+                env.need_heath = false
+            end
             if (env.player_info.ActiveTarget ~= env.ATKTargetMonster.ObjectIndex or env.ATKTargetMonster.bIsDead) and hpp > 30 then
 
                 if not next(env.player_info.Pets) then
@@ -589,6 +595,7 @@ local plot_nodes = {
                 if resting["ret"] == -1 then
                     aoc_api.click_keyboard("X")
                 end
+                env.need_heath = true
                 return bret.RUNNING
             end
 

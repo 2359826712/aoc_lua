@@ -594,6 +594,7 @@ local plot_nodes = {
                 local resting = aoc_api.AiFindPic(client_window["x1"]+70,client_window["y1"]+60,client_window["x1"]+344,client_window["y1"]+100,"resting.bmp",0.85)
                 if resting["ret"] == -1 then
                     aoc_api.click_keyboard("X")
+                    Sleep(1000)
                 end
                 env.need_heath = true
                 return bret.RUNNING

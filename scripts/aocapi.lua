@@ -451,53 +451,63 @@ end
 _M.is_have_monster = function(range_info,player_info,name,dis)
     name = name or ""
     dis = dis or 8000
-    local monster_list = {}
+
+    local best_monster = nil
+    local best_dis = nil
+
     for _, monster in ipairs(range_info) do
-        if monster.bIsDead == true or  monster.characterName == player_info.characterName or string.find(monster.objName, "Pet_Summoner") then
+        if monster.bIsDead == true
+            or monster.characterName == player_info.characterName
+            or string.find(monster.objName, "Pet_Summoner")
+        then
             goto continue
         end
         if not string.find(monster.characterName, name) then
             goto continue
         end
-        local Dis = _M.Point2PointDis(player_info.worldX, player_info.worldY, player_info.worldZ, monster.worldX, monster.worldY, monster.worldZ)
-        if Dis <= dis then
+        local Dis = _M.Point2PointDis(
+            player_info.worldX, player_info.worldY, player_info.worldZ,
+            monster.worldX, monster.worldY, monster.worldZ
+        )
+        if Dis <= dis and (best_dis == nil or Dis < best_dis) then
+            best_dis = Dis
             monster.dis = Dis
-            table.insert(monster_list, monster)
+            best_monster = monster
         end
         ::continue::
     end
-    
-    -- 按距离排序
-    table.sort(monster_list, function(a, b)
-        return a.dis < b.dis
-    end)
-    
-    return monster_list
+
+    if not best_monster then
+        return {}
+    end
+    return { best_monster }
 end
 _M.is_have_Npc = function(range_info,player_info,name)
     name = name or ""
-    local monster_list = {}
+
+    local best_npc = nil
+    local best_dis = nil
+
     for _, monster in ipairs(range_info) do
         if not string.find(monster.characterName, name) then
             goto continue
         end
-        local dis = _M.Point2PointDis(player_info.worldX, player_info.worldY, player_info.worldZ, monster.worldX, monster.worldY, monster.worldZ)
-        if dis <= 800 then
+        local dis = _M.Point2PointDis(
+            player_info.worldX, player_info.worldY, player_info.worldZ,
+            monster.worldX, monster.worldY, monster.worldZ
+        )
+        if dis <= 800 and (best_dis == nil or dis < best_dis) then
+            best_dis = dis
             monster.dis = dis
-            table.insert(monster_list, monster)
+            best_npc = monster
         end
         ::continue::
     end
-    
-    -- 按距离排序
-    table.sort(monster_list, function(a, b)
-        return a.dis < b.dis
-    end)
-    
-    return monster_list
-end
-function randomInRange(a, b)
-    return a + math.random() * (b - a)
+
+    if not best_npc then
+        return {}
+    end
+    return { best_npc }
 end
 
 function  GetSendText(GetText)
@@ -559,8 +569,8 @@ _M.bt_GetAllWay = function()
     , { -1003368, -654674, 12589, "门口石碑后的楼梯后拐角1 附近打怪升3 ATKMONSTER 仇恨值低要走近>>>Stonewoke Automata", 0, Wayflag.atk }
     , { -1002992, -650964, 12933, "NPC拐角擦石碑前", 0, Wayflag.run }
     , { -996201, -644357, 12698, "石碑后第一个拐角", 0, Wayflag.run }
-    , { -995027, -644701, 12698, "石碑后第二个拐角", 0, Wayflag.run }
-    , { -994041, -643754, 12698, "石碑后第三个拐角", 0, Wayflag.run }
+    , { -995089, -644932, 12698, "石碑后第二个拐角", 0, Wayflag.run }
+    , { -993967, -643585, 12698, "石碑后第三个拐角", 0, Wayflag.run }
     , { -988231, -649639, 11828, "石头人护卫门口NPC", 0, Wayflag.run }
     , { -988280, -651212, 11796, "石头人护卫门口NPC拐1", 0, Wayflag.run }
     , { -987421, -652902, 11776, "石头人护卫门口NPC拐2", 0, Wayflag.run }
@@ -586,7 +596,7 @@ _M.bt_GetAllWay = function()
     , { -961767, -676919, 20772, "去复活点4_5", 0, Wayflag.run }
     , { -960045, -666619, 22502, "去复活点4_6", 0, Wayflag.run }
     , { -958111, -656479, 23797, "去复活点4_7", 0, Wayflag.run }
-    , { -956192, -644789, 23891, "复活点4", 0, Wayflag.run }
+    , { -956215, -644593, 23891, "复活点4", 0, Wayflag.run }
     , { -949681, -642180, 24217, "狮子路上1", 0, Wayflag.run }
     , { -945770, -647546, 26326, "狮子路上2", 0, Wayflag.run }
     , { -938900, -652352, 28442, "狮子路上3", 0, Wayflag.run }
@@ -595,7 +605,6 @@ _M.bt_GetAllWay = function()
     , { -920224, -649826, 26211, "狮子刷级点1", 0, Wayflag.atk }
     , { -916120, -648479, 25907, "狮子路上6", 0, Wayflag.run }
     , { -912984, -646909, 25897, "狮子刷级点2", 0, Wayflag.atk }
-    , { -911450, -644733, 25897, "终点", 0, Wayflag.endpoint }
     }
     return locations
 end

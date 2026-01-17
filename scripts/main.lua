@@ -20,10 +20,10 @@ local bt = aoc.create()
 -- Log("2222222||||")
 i = 0
 while true do
-    -- i = i + 1
+    i = i + 1
     -- Log("111111")
     -- 记录开始时间（毫秒）
-    -- local start_time = api_GetTickCount64()  -- 转换为 ms
+    local start_time = GetHighResTimeMs()  -- 转换为 ms
     
     bt:interrupt()  -- 清空节点栈和YIELD标记
     -- Log("qqqqqqqqqqqqqqq")
@@ -35,9 +35,9 @@ while true do
     end
 
 
-    -- local elapsed_ms = (api_GetTickCount64()) - start_time
-    -- api_Log(string.format("Tick %d | 耗时: %.2f ms", i, elapsed_ms))
-    -- api_Log(string.format("-------------------------------------------------------------------------------------------------------------"))
+    local elapsed_ms = (GetHighResTimeMs()) - start_time
+    print(string.format("Tick %d | 耗时: %.2f ms", i, elapsed_ms))
+    print(string.format("-------------------------------------------------------------------------------------------------------------"))
 
     
 end

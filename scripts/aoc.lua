@@ -193,6 +193,7 @@ local plot_nodes = {
                 print("DEBUG: Setting TargetMovingPoint to nil")
                 env.TargetMovingPoint = nil
                 env.death = true
+                iii = 0
                 local revive = aoc_api.AiFindPic(client_window["x1"]+400,client_window["y1"]+369,client_window["x1"]+525,client_window["y1"]+413,"revive.bmp",0.90)
                 if revive["bIsDead"] ~= -1 then
                     aoc_api.dbgp("找到图片 revive.bmp 位置")

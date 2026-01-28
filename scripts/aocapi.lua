@@ -533,11 +533,11 @@ end
 _M.shouting = function(text)
     local index =  math.random(1,5)
      local WEB = {
-   "MMOELD_COM" ,
-   "AOCGG_COM" ,
-   "MMO_ELD_COM" ,
-   "AOCGG_COM" ,
-   "AOCGG_COM" ,
+   "WWW_MMOEXP_COM" ,
+   "WWW_MM0EXP_COM" ,
+   "WWW_MM0EXP_COM" ,
+   "WWW_MMOEXP_COM" ,
+   "WWW_MM0EXP_COM" ,
      }
       local AddText={
         "**_Quick Heads-Up: 30% off is live for a short time – perfect timing to refresh your inventory",

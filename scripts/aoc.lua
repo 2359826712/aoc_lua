@@ -583,7 +583,7 @@ local plot_nodes = {
                 env.player_info.ActiveTarget = 0
                 return bret.FAIL
             end
-            local resting = aoc_api.AiFindPic(client_window["x1"]+70,client_window["y1"]+71,client_window["x1"]+323,client_window["y1"]+99,"resting.bmp",0.85)
+            local resting = aoc_api.AiFindPic(env.client_window["x1"]+70,env.client_window["y1"]+71,env.client_window["x1"]+323,env.client_window["y1"]+99,"resting.bmp",0.85)
             local hpp = (env.player_info.CurrentHealth / env.player_info.MaxHealth) * 100
             print("resting",resting["ret"])
             aoc_api.dbgp("当前生命值百分比", tostring(hpp))
@@ -609,7 +609,7 @@ local plot_nodes = {
             if (env.player_info.ActiveTarget ~= env.ATKTargetMonster.ObjectIndex or env.ATKTargetMonster.bIsDead) and hpp > 30 then
 
                 if not next(env.player_info.Pets) then
-                    aoc_api.click(client_window["x1"]+200,client_window["y1"]+200)
+                    aoc_api.click(env.client_window["x1"]+200,env.client_window["y1"]+200)
                     aoc_api.dbgp("切换目标,没有宠物")
                     local now = GetHighResTimeMs()
                     if not self.summon_start_ms or now - self.summon_start_ms >= 7500 then
@@ -648,8 +648,8 @@ local plot_nodes = {
             SetFacing(env.ATKTargetMonster.worldX, env.ATKTargetMonster.worldY,env.ATKTargetMonster.worldZ)
             local hpp = (env.player_info.CurrentHealth / env.player_info.MaxHealth) * 100
             aoc_api.dbgp("当前生命值百分比", tostring(hpp))
-            local monster_use_skill = aoc_api.AiFindPic(client_window["x1"]+70,client_window["y1"]+71,client_window["x1"]+323,client_window["y1"]+99,"monster_use_skill.bmp",0.85)
-            local monster_use_skill_2 = aoc_api.AiFindPic(client_window["x1"]+70,client_window["y1"]+71,client_window["x1"]+323,client_window["y1"]+99,"monster_use_skill_2.bmp",0.85)
+            local monster_use_skill = aoc_api.AiFindPic(env.client_window["x1"]+70,env.client_window["y1"]+71,env.client_window["x1"]+323,env.client_window["y1"]+99,"monster_use_skill.bmp",0.85)
+            local monster_use_skill_2 = aoc_api.AiFindPic(env.client_window["x1"]+70,env.client_window["y1"]+71,env.client_window["x1"]+323,env.client_window["y1"]+99,"monster_use_skill_2.bmp",0.85)
             if monster_use_skill["ret"] == -1 and monster_use_skill_2["ret"] == -1 then
                 local now = GetHighResTimeMs()
                 if not self.eq_press_ms or now - self.eq_press_ms >= 500 then
